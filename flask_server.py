@@ -55,25 +55,29 @@ def get_region():
     
 @app.route("/ticket/query")
 def ticket():
+
+
+
     dest_from_city = request.args.get('dest_from_city')
     dest_to_city = request.args.get('dest_to_city')
     date = request.args.get('date')
-    url = "https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/browsedates/v1.0/TR/TRY/tr-TR/{}-sky/{}-sky/{}".format(
+    url = "https://travelpayouts-travelpayouts-flight-data-v1.p.rapidapi.com/v2/prices/latest".format(
         dest_from_city, dest_to_city, date)
 
-    querystring = {"inboundpartialdate": "anytime"}
+    querystring = {"trip_class": "0", "limit": "30", "show_to_affiliates": "2", "sorting": "price", "one_way": "true",
+                   "beginning_of_period": date, "currency": "TRY", "page": "1", "period_type": "day",
+                   "origin": dest_from_city, "destination": dest_to_city}
 
     headers = {
-        'x-rapidapi-host': "skyscanner-skyscanner-flight-search-v1.p.rapidapi.com",
-        'x-rapidapi-key': "d1da59d9f9mshfa683ef9c6fda8ep1e59bcjsnd1580194e65d"
+        'x-rapidapi-host': "travelpayouts-travelpayouts-flight-data-v1.p.rapidapi.com",
+        'x-rapidapi-key': "d1da59d9f9mshfa683ef9c6fda8ep1e59bcjsnd1580194e65d",
+        'x-access-token': "d04ac8b64635eee36d3cbfd230460faf"
     }
 
     response = requests.request("GET", url, headers=headers, params=querystring)
 
     json_data = response.json()
-    json_data_dates = json_data['Dates']
-    json_data_carriers = json_data['Carriers']
-    return jsonify(json_data_dates, json_data_carriers)
+    return jsonify(json_data)
 
 if __name__ == '__main__':
 
