@@ -41,11 +41,11 @@ def get_region():
     con = sqlite3.connect("database.db")
     cursor = con.cursor()
 
-    cursor.execute("SELECT * FROM regions")
+    cursor.execute("SELECT * FROM region")
     rows = cursor.fetchall()
     result = []
     for item in rows:
-        result.append({"Id": item[0], "region_name": item[1]})
+        result.append({"Id": item[0], "region_name": item[1], "photo": item[2]})
     con.commit()
     con.close()
 
