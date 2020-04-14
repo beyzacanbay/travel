@@ -11,6 +11,23 @@ app.config['JSON_AS_ASCII'] = False
 @app.route("/")
 def hello():
     return "Hello Time To Travel!"
+
+@app.route("/places_to_visit/<string:city_name>")
+def places_for_visit(city_name):
+    con = sqlite3.connect("database.db")
+    cursor = con.cursor()
+    cursor.execute("SELECT * FROM places_to_visit WHERE UPPER(city_name)=UPPER('%s')"%city_name)
+    rows = cursor.fetchall()
+    result = []
+    for item in rows:
+        if not None in item:
+            result.append({"Id": item[4], "city_name": item[0],"name_for_location": item[1], "info_for_location": item[2],"photo": item[3]})
+        print(item)
+
+    con.commit()
+    con.close()
+    return jsonify(result)
+
 @app.route("/cities")
 def add_city():
     con = sqlite3.connect("database.db")
