@@ -38,7 +38,7 @@ def add_city():
     result = []
     for item in rows:
         if not None in item:
-            result.append({"Id": item[0], "city_name": item[1],"region": item[2], "description": item[3],"lat": item[4], "lon": item[5]})
+            result.append({"Id": item[0], "city_name": item[1],"region": item[2], "description": item[3],"lat": item[4], "lon": item[5], "photo":item[6]})
         print(item)
 
     con.commit()
