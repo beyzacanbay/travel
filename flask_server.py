@@ -32,9 +32,12 @@ def weather_condition(city):
     url = 'https://api.openweathermap.org/data/2.5/weather?q={}&appid=ded10e906df5e988adcdfcb5071da37b&units=metric'.format(city)
     response = requests.get(url)
     json_data = response.json()
-    temp = json_data['main']
+    main = json_data['main']
+    weather = json_data['weather'][0]
+    weather_condition = dict(list(main.items()) + list(weather.items()))
 
-    return temp
+    return weather_condition
+
     
 @app.route("/region")
 def get_region():
