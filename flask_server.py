@@ -19,11 +19,10 @@ def places_for_visit(city_name):
     cursor.execute("SELECT * FROM places_to_visit WHERE UPPER(city_name)=UPPER('%s')"%city_name)
     rows = cursor.fetchall()
     result = []
+
     for item in rows:
         if not None in item:
-            result.append({"Id": item[4], "city_name": item[0],"name_for_location": item[1], "info_for_location": item[2],"photo": item[3]})
-        print(item)
-
+            result.append({"Id": item[4], "city_name": item[0], "name_for_location": item[1], "info_for_location": item[2], "photo": item[3]})
     con.commit()
     con.close()
     return jsonify(result)
