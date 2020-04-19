@@ -1,8 +1,26 @@
 import sqlite3
-from flask import Flask, jsonify, request
 import requests
-import pprint
+from flask import Flask, jsonify, request
+"""
+class City:
+    def __init__(self,city_name,region,photo):
+        self.city_name=city_name
+        self.region=region
+        self.photo=photo
 
+
+class Region:
+    def __init__(self,region_name,photo):
+        self.region_name=region_name
+        self.photo=photo
+
+class PlacesToVisit:
+    def __init__(self,city_name,name_for_location,info_for_location,photo):
+        self.city_name=city_name
+        self.name_for_location=name_for_location
+        self.info_for_location=info_for_location
+        self.photo=photo
+"""
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 
@@ -43,6 +61,7 @@ def add_city():
     con.commit()
     con.close()
     return jsonify(result)
+
 @app.route("/weathercondition/<string:city>")
 def weather_condition(city):
     url = 'https://api.openweathermap.org/data/2.5/weather?q={}&appid=ded10e906df5e988adcdfcb5071da37b&units=metric'.format(city)
