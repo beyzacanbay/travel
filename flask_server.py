@@ -1,122 +1,57 @@
-import sqlite3
-import requests
+
 from flask import Flask, jsonify, request
-"""
-class City:
-    def __init__(self,city_name,region,photo):
-        self.city_name=city_name
-        self.region=region
-        self.photo=photo
+from City import CityManager
+from Region import RegionManager
+from ThirdParty import WeatherCondition,Ticket
 
-
-class Region:
-    def __init__(self,region_name,photo):
-        self.region_name=region_name
-        self.photo=photo
-
-class PlacesToVisit:
-    def __init__(self,city_name,name_for_location,info_for_location,photo):
-        self.city_name=city_name
-        self.name_for_location=name_for_location
-        self.info_for_location=info_for_location
-        self.photo=photo
-"""
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
-
 
 
 @app.route("/")
 def hello():
     return "Hello Time To Travel!"
 
-@app.route("/places_to_visit/<string:city_name>")
-def places_for_visit(city_name):
-    con = sqlite3.connect("database.db")
-    cursor = con.cursor()
-    cursor.execute("SELECT * FROM places_to_visit WHERE UPPER(city_name)=UPPER('%s')"%city_name)
-    rows = cursor.fetchall()
-    result = []
 
-    for item in rows:
-        if not None in item:
-            result.append({"Id": item[4], "city_name": item[0], "name_for_location": item[1], "info_for_location": item[2], "photo": item[3]})
-    con.commit()
-    con.close()
+@app.route("/places_to_visit/<string:city_name>")
+def get_places_for_visit(city_name):
+    cm = CityManager()
+    result = cm.get_places_to_visit(city_name)
     return jsonify(result)
+
 
 @app.route("/cities")
-def add_city():
-    con = sqlite3.connect("database.db")
-    cursor = con.cursor()
-
-    cursor.execute("SELECT * FROM places")
-    rows = cursor.fetchall()
-    result = []
-    for item in rows:
-        if not None in item:
-            result.append({"Id": item[0], "city_name": item[1],"region": item[2], "description": item[3],"lat": item[4], "lon": item[5], "photo":item[6]})
-        print(item)
-
-    con.commit()
-    con.close()
+def get_cities():
+    cm = CityManager()
+    result = cm.get_all_cities()
     return jsonify(result)
+
+
+@app.route("/region")
+def get_regions():
+    rm = RegionManager()
+    result = rm.get_all_regions()
+    return jsonify(result)
+
 
 @app.route("/weathercondition/<string:city>")
 def weather_condition(city):
-    url = 'https://api.openweathermap.org/data/2.5/weather?q={}&appid=ded10e906df5e988adcdfcb5071da37b&units=metric'.format(city)
-    response = requests.get(url)
-    json_data = response.json()
-    main = json_data['main']
-    weather = json_data['weather'][0]
-    weather_condition = dict(list(main.items()) + list(weather.items()))
+    wc = WeatherCondition()
+    weather_condition = wc.make_api_request(city)
 
     return weather_condition
 
-    
-@app.route("/region")
-def get_region():
-    con = sqlite3.connect("database.db")
-    cursor = con.cursor()
 
-    cursor.execute("SELECT * FROM region")
-    rows = cursor.fetchall()
-    result = []
-    for item in rows:
-        result.append({"Id": item[0], "region_name": item[1], "photo": item[2]})
-    con.commit()
-    con.close()
-
-
-    return jsonify(result)
-
-    
 @app.route("/ticket/query")
 def ticket():
-
-
-
     dest_from_city = request.args.get('dest_from_city')
     dest_to_city = request.args.get('dest_to_city')
     date = request.args.get('date')
-    url = "https://travelpayouts-travelpayouts-flight-data-v1.p.rapidapi.com/v2/prices/latest".format(
-        dest_from_city, dest_to_city, date)
+    ticket_control= Ticket()
+    data = ticket_control.make_api_request(dest_from_city,dest_to_city,date)
 
-    querystring = {"trip_class": "0", "limit": "30", "show_to_affiliates": "2", "sorting": "price", "one_way": "true",
-                   "beginning_of_period": date, "currency": "TRY", "page": "1", "period_type": "day",
-                   "origin": dest_from_city, "destination": dest_to_city}
+    return jsonify(data)
 
-    headers = {
-        'x-rapidapi-host': "travelpayouts-travelpayouts-flight-data-v1.p.rapidapi.com",
-        'x-rapidapi-key': "d1da59d9f9mshfa683ef9c6fda8ep1e59bcjsnd1580194e65d",
-        'x-access-token': "d04ac8b64635eee36d3cbfd230460faf"
-    }
-
-    response = requests.request("GET", url, headers=headers, params=querystring)
-
-    json_data = response.json()
-    return jsonify(json_data)
 
 if __name__ == '__main__':
-
     app.run(debug=True, host="0.0.0.0", port=1234)
